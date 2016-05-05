@@ -80,13 +80,6 @@ configuration vShowcaseLab {
         @{ Path = 'C:\SharedData\Company Share\Portraits'; }
         @{ Path = 'C:\SharedData\Departmental Shares'; }
         @{
-            Path = 'C:\SharedData\DTS';
-            Share = 'DTS$';
-            FullControl = 'Everyone';
-            ModifyNtfs = 'Users';
-            Description = 'RES ONE Workspace Desktop Sampler files';
-        }
-        @{
             Path = 'C:\SharedData\Profiles';
             Share = 'Profile$';
             FullControl = 'Everyone';
@@ -101,13 +94,6 @@ configuration vShowcaseLab {
             Description = 'User Terminal Services roaming profiles';
         }
         @{ Path = 'C:\SharedData\Profiles\User Profiles'; }
-        @{ Path = 'C:\SharedData\Scripts'; }
-        @{
-            Path = 'C:\SharedData\Software';
-            Share = 'Software';
-            FullControl = 'Everyone';
-            Description = 'Software repository';
-        }
         @{
             Path = 'C:\SharedData\User Home Directories';
             Share = 'Home$';
@@ -138,7 +124,7 @@ configuration vShowcaseLab {
         GPOs = @{
             'Default Domain Policy' = @{ };
             'Default Lab Policy' = @{ Link = $rootDN; Enabled = $true; }
-            'Invoke Workspace Composer' = @{ Link = "OU=Servers,OU=Showcase,$rootDN","OU=Computers,OU=Showcase,$rootDN"; Enabled = $false; }
+            'Invoke Workspace Composer' = @{ Link = "OU=Servers,OU=Showcase,$rootDN"; Enabled = $true; }
         }
         
         Users = @(
@@ -213,12 +199,12 @@ configuration vShowcaseLab {
             @{  SamAccountName = 'HR10'; GivenName = 'HR'; Surname = '10';
                 Telephone = '01234 567906'; Mobile = '07700 900087'; Fax = '01234 567899';
                 Address = 'Columbus Circle'; City = 'New York'; State = 'NYC'; PostCode = '12345'; Country = 'US';
-                JobTitle = 'Director'; Department = 'Human Resources'; Office = 'Head Office'; Company = 'Stark Industries';
+                JobTitle = 'Director'; Department = 'HR'; Office = 'Head Office'; Company = 'Stark Industries';
                 Path = 'OU=Users,OU=Showcase'; ManagedBy = 'EXECUTIVE10'; EmployeeNumber ='45'; }
             @{  SamAccountName = 'HR01'; GivenName = 'HR'; Surname = '01';
                 Telephone = '01234 567907'; Mobile = '07700 900249'; Fax = '01234 567899';
                 Address = 'Columbus Circle'; City = 'New York'; State = 'NYC'; PostCode = '12345'; Country = 'US';
-                JobTitle = 'HR Administrator'; Department = 'Human Resources'; Office = 'Head Office'; Company = 'Stark Industries';
+                JobTitle = 'HR Administrator'; Department = 'HR'; Office = 'Head Office'; Company = 'Stark Industries';
                 Path = 'OU=Users,OU=Showcase'; ManagedBy = 'HR10'; EmployeeNumber ='46'; }
         )
 
@@ -233,13 +219,13 @@ configuration vShowcaseLab {
 
         ## Universal group required to mail-enable
         Groups = @(
-            @{ Name = 'Engineering'; Path = 'OU=Groups,OU=Showcase'; Description = 'Engineering users'; Scope = 'Universal'; ManagedBy = 'ROAM02'; }
-            @{ Name = 'Executive'; Path = 'OU=Groups,OU=Showcase'; Description = 'Executive users'; Scope = 'Universal'; ManagedBy = 'LOCAL05'; }
-            @{ Name = 'Finance'; Path = 'OU=Groups,OU=Showcase'; Description = 'Finance users'; Scope = 'Universal'; ManagedBy = 'LOCAL03'; }
-            @{ Name = 'Information Technology'; Path = 'OU=Groups,OU=Showcase'; Description = 'IT users'; Scope = 'Universal'; ManagedBy = 'ROAM01'; }
-            @{ Name = 'Marketing'; Path = 'OU=Groups,OU=Showcase'; Description = 'Marketing users'; Scope = 'Universal'; ManagedBy = 'LOCAL04'; }
-            @{ Name = 'Sales'; Path = 'OU=Groups,OU=Showcase'; Description = 'Sales users'; Scope = 'Universal'; ManagedBy = 'LOCAL01'; }
-            @{ Name = 'Human Resources'; Path = 'OU=Groups,OU=Showcase'; Description = 'HR users'; Scope = 'Universal'; ManagedBy = 'LOCAL06'; }
+            @{ Name = 'Engineering'; Path = 'OU=Groups,OU=Showcase'; Description = 'Engineering users'; Scope = 'Universal'; ManagedBy = 'ENGINEERING10'; }
+            @{ Name = 'Executive'; Path = 'OU=Groups,OU=Showcase'; Description = 'Executive users'; Scope = 'Universal'; ManagedBy = 'EXECUTIVE10'; }
+            @{ Name = 'Finance'; Path = 'OU=Groups,OU=Showcase'; Description = 'Finance users'; Scope = 'Universal'; ManagedBy = 'FINANCE10'; }
+            @{ Name = 'Information Technology'; Path = 'OU=Groups,OU=Showcase'; Description = 'IT users'; Scope = 'Universal'; ManagedBy = 'IT10'; }
+            @{ Name = 'Marketing'; Path = 'OU=Groups,OU=Showcase'; Description = 'Marketing users'; Scope = 'Universal'; ManagedBy = 'MARKETING10'; }
+            @{ Name = 'Sales'; Path = 'OU=Groups,OU=Showcase'; Description = 'Sales users'; Scope = 'Universal'; ManagedBy = 'SALES10'; }
+            @{ Name = 'HR'; Path = 'OU=Groups,OU=Showcase'; Description = 'Human Resource users'; Scope = 'Universal'; ManagedBy = 'HR10'; }
             @{ Name = 'RES AM Administrators'; Path = 'OU=Groups,OU=Showcase'; Description = 'RES ONE Automation administation accounts';
                 Members = 'Domain Admins','Information Technology'; Scope = 'DomainLocal'; }
             @{ Name = 'RES AM Service Accounts'; Path = 'OU=Groups,OU=Showcase'; Description = 'RES ONE Automation service accounts';
@@ -296,7 +282,6 @@ configuration vShowcaseLab {
         Users = $activeDirectory.Users;
         DomainName = $DomainName;
     }
-    
     #endregion Active Directory
 
     #region Group Policy
@@ -318,7 +303,7 @@ configuration vShowcaseLab {
     }
     
     if ($PSBoundParameters.ContainsKey('ThumbnailPhotoPath')) {
-        vTrainingLabUserThumbnails 'UserThumbnails' {
+        vTrainingLabUserThumbnails 'UserThumbnailPhotos' {
             Users = $activeDirectory.Users;
             ThumbnailPhotoPath = $ThumbnailPhotoPath;
             DomainName = $DomainName;
@@ -330,4 +315,4 @@ configuration vShowcaseLab {
         AccdbDatabasePath = $HRDatabasePath;
     }
     
-} #end configuration vTrainingLab
+} #end configuration vShowcaseLab
