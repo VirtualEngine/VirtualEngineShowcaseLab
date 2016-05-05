@@ -36,7 +36,7 @@ configuration vShowcaseLabAccdbOdbc {
     $registryValues = @(
         @{ Key = 'HKEY_LOCAL_MACHINE\SOFTWARE\ODBC\ODBC.INI\ODBC Data Sources'; ValueName = 'SO_Data_Reader'; ValueType = 'String'; ValueData = 'Microsoft Access Driver (*.mdb, *.accdb)'; }
         @{ Key = 'HKEY_LOCAL_MACHINE\SOFTWARE\ODBC\ODBC.INI\SO_Data_Reader'; ValueName = 'Driver'; ValueType = 'String'; ValueData = 'C:\\PROGRA~1\\COMMON~1\\MICROS~1\\OFFICE14\\ACEODBC.DLL'; }
-        @{ Key = 'HKEY_LOCAL_MACHINE\SOFTWARE\ODBC\ODBC.INI\SO_Data_Reader'; ValueName = 'DBQ'; ValueType = 'String'; ValueData = AccdbDatabasePath; }
+        @{ Key = 'HKEY_LOCAL_MACHINE\SOFTWARE\ODBC\ODBC.INI\SO_Data_Reader'; ValueName = 'DBQ'; ValueType = 'String'; ValueData = $AccdbDatabasePath; }
         @{ Key = 'HKEY_LOCAL_MACHINE\SOFTWARE\ODBC\ODBC.INI\SO_Data_Reader'; ValueName = 'DriverId'; ValueType = 'Dword'; ValueData = '19'; }
         @{ Key = 'HKEY_LOCAL_MACHINE\SOFTWARE\ODBC\ODBC.INI\SO_Data_Reader'; ValueName = 'FIL'; ValueType = 'String'; ValueData = 'MS Access'; }
         @{ Key = 'HKEY_LOCAL_MACHINE\SOFTWARE\ODBC\ODBC.INI\SO_Data_Reader'; ValueName = 'PWD'; ValueType = 'String'; ValueData = ''; }
