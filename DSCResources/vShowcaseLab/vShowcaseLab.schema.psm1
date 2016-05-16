@@ -68,7 +68,7 @@ configuration vShowcaseLab {
     )
     
     ## Avoid recursive loading of the VirtualEngineTrainingLab composite resource
-    Import-DscResource -Name vTrainingLabOUs, vTrainingLabUsers, vTrainingLabServiceAccounts, vTrainingLabGroups, vTrainingLabFolders;
+    Import-DscResource -Name vTrainingLabOUs, vTrainingLabUsers, vTrainingLabServiceAccounts, vTrainingLabGroups, vTrainingLabFolders, vTrainingLabDfs;
     Import-DscResource -Name vTrainingLabGPOs, vTrainingLabDns, vTrainingLabPrinters, vTrainingLabUserThumbnails, vShowcaseLabAccdbOdbc;
     
     $folders = @(
@@ -78,7 +78,7 @@ configuration vShowcaseLab {
             Share = $DFSRoot;
             FullControl = 'BUILTIN\Administrators';
             ChangeControl = 'Everyone';
-            Description 'Distributed File System Root Share';
+            Description = 'Distributed File System Root Share';
             DfsRoot = $true;
         }
         @{  Path = 'C:\SharedData'; }
@@ -316,10 +316,12 @@ configuration vShowcaseLab {
     }
     #endregion Group Policy
     
+    $departments = $activeDirectory.Users | % { $_.Department } | Select -Unique;
+    
     vTrainingLabFolders 'Folders' {
         Folders = $folders;
         Users = $activeDirectory.Users;
-        Departments = $activeDirectory.Users | % { $_.Department } | Select -Unique;
+        Departments = $departments;
     }
     
     vTrainingLabDfs 'Dfs' {
@@ -328,11 +330,11 @@ configuration vShowcaseLab {
         DFSRoot = $DFSRoot;
         DomainName = $DomainName;
         FileServer = $FileServer;
-        Departments = $activeDirectory.Users | % { $_.Department } | Select -Unique;
+        Departments = $departments;
     }
     
     vTrainingLabPrinters 'Printers' {
-        Departments = $activeDirectory.Users | % { $_.Department } | Select -Unique;
+        Departments = $departments;
     }
     
     if ($PSBoundParameters.ContainsKey('ThumbnailPhotoPath')) {
