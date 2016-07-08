@@ -5,72 +5,72 @@ configuration vShowcaseLab {
         ## Active Directory credentials (for DFS creation)
         [Parameter(Mandatory)]
         [System.Management.Automation.PSCredential] $Credential,
-        
+
         ## Default user password to set/enforce
         [Parameter(Mandatory)]
         [System.Management.Automation.PSCredential] $Password,
-        
+
         ## IP address used to calculate reverse lookup zone name
         [Parameter(Mandatory)]
         [System.String] $IPAddress,
-        
+
         ## Folder containing GPO backup files
         [Parameter(Mandatory)]
         [System.String] $GPOBackupPath,
-        
+
         #  = 'C:\\SharedData\\Departmental Shares\\HR\\HR_Database.accdb'
         [Parameter(Mandatory)] [ValidateNotNullOrEmpty()]
         [System.String] $HRDatabasePath,
-               
+
         ## Domain root FQDN used to AD paths
         [Parameter()] [ValidateNotNullOrEmpty()]
         [System.String] $DomainName = 'lab.local',
-        
+
         ## File server FQDN containing the user's home directories and profile shares
         [Parameter()] [ValidateNotNullOrEmpty()]
         [System.String] $FileServer = 'controller.lab.local',
-        
+
         ## DFS root share
         [Parameter()] [ValidateNotNullOrEmpty()]
         [System.String] $DFSRoot = 'DFS',
-        
+
         ## User's home drive assignment
         [Parameter()] [ValidateNotNullOrEmpty()]
         [System.String] $HomeDrive = 'H:',
-        
+
         ## User home directory share name
         [Parameter()] [ValidateNotNullOrEmpty()]
         [System.String] $HomeShare = 'Home$',
-        
+
         ## User profile directory share name
         [Parameter()] [ValidateNotNullOrEmpty()]
         [System.String] $ProfileShare = 'Profile$',
-        
+
         ## Name of the mandatory user profile
         [Parameter()] [ValidateNotNullOrEmpty()]
         [System.String] $MandatoryProfileName = 'Mandatory',
-        
+
         ## Hostname for itstore.$DomainName CNAME
         [Parameter()] [ValidateNotNullOrEmpty()]
         [System.String] $ITStoreHost = 'controller.lab.local',
-        
+
         ## Hostname for storefront.$DomainName CNAME
         [Parameter()] [ValidateNotNullOrEmpty()]
         [System.String] $StorefrontHost = 'xenapp.lab.local',
-        
+
         ## Hostname for smtp.$DomainName CNAME
         [Parameter()] [ValidateNotNullOrEmpty()]
         [System.String] $SmtpHost = 'exchange.lab.local',
-        
-        ## Directory path containing user thumbnail photos 
+
+        ## Directory path containing user thumbnail photos
         [Parameter()] [ValidateNotNullOrEmpty()]
         [System.String] $ThumbnailPhotoPath
     )
-    
+
     ## Avoid recursive loading of the VirtualEngineTrainingLab composite resource
-    Import-DscResource -Name vTrainingLabOUs, vTrainingLabUsers, vTrainingLabServiceAccounts, vTrainingLabGroups, vTrainingLabFolders, vTrainingLabDfs;
-    Import-DscResource -Name vTrainingLabGPOs, vTrainingLabDns, vTrainingLabPrinters, vTrainingLabUserThumbnails, vShowcaseLabAccdbOdbc;
-    
+    Import-DscResource -Name vTrainingLabPasswordPolicy, vTrainingLabOUs, vTrainingLabUsers, vTrainingLabServiceAccounts, vTrainingLabGroups, vTrainingLabFolders;
+    Import-DscResource -Name vTrainingLabDfs, vTrainingLabGPOs, vTrainingLabDns, vTrainingLabPrinters, vTrainingLabUserThumbnails, vShowcaseLabAccdbOdbc;
+
     $folders = @(
         @{  Path = 'C:\DFSRoots'; }
         @{
@@ -128,12 +128,12 @@ configuration vShowcaseLab {
             Share = 'PST';
             FullControl = 'Everyone';
             Description = 'Exported Mailboxes';
-            DfsPath = 'Mail Archives';            
+            DfsPath = 'Mail Archives';
         }
     ) #end folders
-    
+
     $rootDN = 'DC={0}' -f $DomainName -split '\.' -join ',DC=';
-    
+
     $activeDirectory = @{
         OUs = @(
             @{ Name = 'Showcase'; Description = 'Showcase group and user resources'; }
@@ -144,13 +144,12 @@ configuration vShowcaseLab {
                 @{ Name = 'Users'; Path = 'OU=Showcase'; Description = 'Showcase department users'; }
                     @{ Name = 'Disabled Accounts'; Path = 'OU=Users,OU=Showcase'; Description = 'Deprovisioned user accounts'; }
         )
-        
+
         GPOs = @{
-            'Default Domain Policy' = @{ };
             'Default Lab Policy' = @{ Link = $rootDN; Enabled = $true; }
             'Invoke Workspace Composer' = @{ Link = "OU=Servers,OU=Showcase,$rootDN"; Enabled = $true; }
         }
-        
+
         Users = @(
             # Executive
             @{  SamAccountName = 'EXECUTIVE10'; GivenName = 'Executive'; Surname = '10';
@@ -158,7 +157,7 @@ configuration vShowcaseLab {
                 Address = 'Columbus Circle'; City = 'New York'; State = 'NYC'; PostCode = '12345'; Country = 'US';
                 JobTitle = 'Chief Executive Officer'; Department = 'Executive'; Office = 'Head Office'; Company = 'Stark Industries';
                 Path = 'OU=Users,OU=Showcase'; ManagedBy = 'EXECUTIVE10'; EmployeeNumber ='108'; }
-            
+
             # Engineering
             @{  SamAccountName = 'ENGINEERING10'; GivenName = 'Engineering'; Surname = '10';
                 Telephone = '01234 567894'; Mobile = '07700 900622'; Fax = '01234 567899';
@@ -170,7 +169,7 @@ configuration vShowcaseLab {
                 Address = 'Columbus Circle'; City = 'New York'; State = 'NYC'; PostCode = '12345'; Country = 'US';
                 JobTitle = 'Engineer'; Department = 'Engineering'; Office = 'Head Office'; Company = 'Stark Industries';
                 Path = 'OU=Users,OU=Showcase'; ManagedBy = 'ENGINEERING10'; EmployeeNumber ='47'; }
-            
+
             # Finance
             @{  SamAccountName = 'FINANCE10'; GivenName = 'Finance'; Surname = '10';
                 Telephone = '01234 567891'; Mobile = '07700 900827'; Fax = '01234 567899';
@@ -182,7 +181,7 @@ configuration vShowcaseLab {
                 Address = 'Columbus Circle'; City = 'New York'; State = 'NYC'; PostCode = '12345'; Country = 'US';
                 JobTitle = 'Credit Controller'; Department = 'Finance'; Office = 'Head Office'; Company = 'Stark Industries';
                 Path = 'OU=Users,OU=Showcase'; ManagedBy = 'FINANCE10'; EmployeeNumber ='8'; }
-            
+
             # Information Technology
             @{  SamAccountName = 'IT10'; GivenName = 'IT'; Surname = '10';
                 Telephone = '01234 567893'; Mobile = '07700 900155'; Fax = '01234 567899';
@@ -194,7 +193,7 @@ configuration vShowcaseLab {
                 Address = 'Columbus Circle'; City = 'New York'; State = 'NYC'; PostCode = '12345'; Country = 'US';
                 JobTitle = 'Helpdesk Anaylst'; Department = 'Information Technology'; Office = 'Head Office'; Company = 'Stark Industries';
                 Path = 'OU=Users,OU=Showcase'; ManagedBy = 'IT10'; EmployeeNumber ='10'; }
-            
+
             # Marketing
             @{  SamAccountName = 'MARKETING10'; GivenName = 'Marketing'; Surname = '10';
                 Telephone = '01234 567890'; Mobile = '07700 900738'; Fax = '01234 567899';
@@ -206,7 +205,7 @@ configuration vShowcaseLab {
                 Address = 'Columbus Circle'; City = 'New York'; State = 'NYC'; PostCode = '12345'; Country = 'US';
                 JobTitle = 'Graphic Artist'; Department = 'Marketing'; Office = 'Head Office'; Company = 'Stark Industries';
                 Path = 'OU=Users,OU=Showcase'; ManagedBy = 'MARKETING10'; EmployeeNumber ='7'; }
-           
+
             # Sales
             @{  SamAccountName = 'SALES10'; GivenName = 'Sales'; Surname = '10';
                 Telephone = '01234 567892'; Mobile = '07700 900834'; Fax = '01234 567899';
@@ -218,7 +217,7 @@ configuration vShowcaseLab {
                 Address = 'Columbus Circle'; City = 'New York'; State = 'NYC'; PostCode = '12345'; Country = 'US';
                 JobTitle = 'Account Manager'; Department = 'Sales'; Office = 'Head Office'; Company = 'Stark Industries';
                 Path = 'OU=Users,OU=Showcase'; ManagedBy = 'SALES10'; EmployeeNumber ='18'; }
-                
+
             # HR
             @{  SamAccountName = 'HR10'; GivenName = 'HR'; Surname = '10';
                 Telephone = '01234 567906'; Mobile = '07700 900087'; Fax = '01234 567899';
@@ -262,13 +261,13 @@ configuration vShowcaseLab {
                     Members = 'Domain Admins','Information Technology'; Scope = 'DomainLocal'; }
             @{ Name = 'RES WM Service Accounts'; Path = 'OU=Groups,OU=Showcase'; Description = 'RES ONE Workspace service accounts';
                     Members = 'Domain Admins','RESWM'; Scope = 'DomainLocal'; }
-            
+
             ## Add RES AM Service Account to domain admins
             @{ Name = 'Domain Admins'; Path = 'CN=Users'; Members = 'RESAM'; }
         )
-    
+
     } #end ActiveDirectory
-    
+
     #region DNS
     vTrainingLabDns 'ReverseLookupAndCNames' {
         IPAddress = $IPAddress;
@@ -278,19 +277,23 @@ configuration vShowcaseLab {
         SmtpHost = $SmtpHost;
     }
     #endregion DNS
-    
+
     #region Active Directory
+    vTrainingLabPasswordPolicy 'PasswordPolicy' {
+        Domain = $DomainName;
+    }
+
     vTrainingLabOUs 'OUs' {
         OUs = $activeDirectory.OUs;
         DomainName = $DomainName;
     }
-    
+
     vTrainingLabServiceAccounts 'ServiceAccounts' {
         ServiceAccounts = $activeDirectory.ServiceAccounts;
         Password = $Password;
         DomainName = $DomainName;
     }
-    
+
     vTrainingLabUsers 'Users' {
         Users = $activeDirectory.Users;
         Password = $Password;
@@ -300,7 +303,7 @@ configuration vShowcaseLab {
         ProfileShare = $ProfileShare;
         MandatoryProfileName = $MandatoryProfileName;
     }
-    
+
     vTrainingLabGroups 'Groups' {
         Groups = $activeDirectory.Groups;
         Users = $activeDirectory.Users;
@@ -315,15 +318,15 @@ configuration vShowcaseLab {
         DependsOn = '[vTrainingLabOUs]OUs';
     }
     #endregion Group Policy
-    
+
     $departments = $activeDirectory.Users | % { $_.Department } | Select -Unique;
-    
+
     vTrainingLabFolders 'Folders' {
         Folders = $folders;
         Users = $activeDirectory.Users;
         Departments = $departments;
     }
-    
+
     vTrainingLabDfs 'Dfs' {
         Folders = $folders;
         Credential = $Credential;
@@ -332,22 +335,22 @@ configuration vShowcaseLab {
         FileServer = $FileServer;
         Departments = $departments;
     }
-    
+
     vTrainingLabPrinters 'Printers' {
         Departments = $departments;
     }
-    
+
     if ($PSBoundParameters.ContainsKey('ThumbnailPhotoPath')) {
         vTrainingLabUserThumbnails 'UserThumbnailPhotos' {
             Users = $activeDirectory.Users;
             ThumbnailPhotoPath = $ThumbnailPhotoPath;
             DomainName = $DomainName;
             Extension = 'jpg';
-        }   
+        }
     }
-    
+
     vShowcaseLabAccdbOdbc 'HRDatabaseOdbc' {
         AccdbDatabasePath = $HRDatabasePath;
     }
-    
+
 } #end configuration vShowcaseLab
