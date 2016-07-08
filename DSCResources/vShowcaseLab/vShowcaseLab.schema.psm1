@@ -279,7 +279,7 @@ configuration vShowcaseLab {
 
     #region Active Directory
     vTrainingLabPasswordPolicy 'PasswordPolicy' {
-        Domain = $DomainName;
+        DomainName = $DomainName;
     }
 
     vTrainingLabOUs 'OUs' {
