@@ -133,6 +133,13 @@ configuration vShowcaseLab {
             Description = 'Exported Mailboxes';
             DfsPath = 'Mail Archives';
         }
+        @{
+            Path = 'C:\SharedData\Service Store File Repository';
+            Share = 'ROSSRepo';
+            FullControl = 'Everyone';
+            Description = 'RES ONE Service Store file repository';
+            DfsPath = 'ROSS Repository';
+        }
     ) #end folders
 
     $rootDN = 'DC={0}' -f $DomainName -split '\.' -join ',DC=';
@@ -346,10 +353,27 @@ configuration vShowcaseLab {
     }
 
     if ($PSBoundParameters.ContainsKey('ThumbnailPhotoPath')) {
+
         vTrainingLabUserThumbnails 'UserThumbnailPhotos' {
             Users = $activeDirectory.Users;
             ThumbnailPhotoPath = $ThumbnailPhotoPath;
             DomainName = $DomainName;
+            Extension = 'jpg';
+        }
+
+        vTrainingLabUserThumbnails 'ServiceAccountPhotos' {
+            Users = $activeDirectory.ServiceAccounts;
+            ThumbnailPhotoPath = $ThumbnailPhotoPath;
+            DomainName = $DomainName;
+            Filename = 'ServiceAccount';
+            Extension = 'jpg';
+        }
+
+        vADUserThumbnailPhoto 'AdministratorPhoto' {
+            Users = @{ SamAccountName = 'Administrator' }
+            ThumbnailPhotoPath = $ThumbnailPhotoPath;
+            DomainName = $DomainName;
+            Filename = 'AdminAccount';
             Extension = 'jpg';
         }
     }
