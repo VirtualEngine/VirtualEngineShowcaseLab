@@ -3,8 +3,11 @@ configuration vRESONEServiceStorePreparation {
     .SYNOPSIS
         Clears out the RES ONE Service Store Organisation Contexts, Data Connections and Data Source
         before the RES ONE Showcase building blocks are imported.
+    .NOTES
+        Assumes that the LOCALSYSTEM has access to the ROSS database.
 #>
     param (
+        ## RES ONE Service Store database name.
         [Parameter(Mandatory)]
         [System.String] $DatabaseName
     )
