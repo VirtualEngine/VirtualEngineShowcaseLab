@@ -73,6 +73,13 @@ configuration vRESONEServiceStorePreparation {
                 Write-Verbose -Message ("Deleted data sources: '{0}'." -f [System.String]::Join("','", $dataSources));
             }
 
+            ## Ensure the parent container is present
+            if (-not (Test-Path -Path $using:rossPreparationRegistryPath -PathType Container)) {
+                $registryParentPath = Split-Path -Path $using:rossPreparationRegistryPath -Parent;
+                $registryKeyName = Split-Path -Path $using:rossPreparationRegistryPath -Leaf;
+                [ref] $null = New-Item -Path $registryParentPath -ItemType Directory -Name $registryKeyName;
+            }
+
             $setItemPropertyParams = @{
                 Path = $using:rossPreparationRegistryPath;
                 Name = $using:rossPreparationRegistryValue;
