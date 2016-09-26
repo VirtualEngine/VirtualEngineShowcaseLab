@@ -50,9 +50,13 @@ configuration vShowcaseLab {
         [Parameter()] [ValidateNotNullOrEmpty()]
         [System.String] $MandatoryProfileName = 'Mandatory',
 
-        ## Hostname for itstore.$DomainName CNAME
+        ## Hostname for servicestore.$DomainName CNAME
         [Parameter()] [ValidateNotNullOrEmpty()]
-        [System.String] $ITStoreHost = 'controller.lab.local',
+        [System.String] $ServiceStoreHost = 'controller.lab.local',
+
+        ## Hostname for catalogservices.$DomainName CNAME
+        [Parameter()] [ValidateNotNullOrEmpty()]
+        [System.String] $CatalogServicesHost = 'controller.lab.local',
 
         ## Hostname for storefront.$DomainName CNAME
         [Parameter()] [ValidateNotNullOrEmpty()]
@@ -76,69 +80,84 @@ configuration vShowcaseLab {
     Import-DscResource -Name vTrainingLabDfs, vTrainingLabGPOs, vTrainingLabDns, vTrainingLabPrinters, vTrainingLabUserThumbnails, vShowcaseLabAccdbOdbc;
 
     $folders = @(
-        @{  Path = 'C:\DFSRoots'; }
         @{
-            Path = 'C:\DFSRoots\{0}' -f $DFSRoot;
-            Share = $DFSRoot;
-            FullControl = 'BUILTIN\Administrators';
+            Path = 'C:\DFSRoots';
+        }
+        @{
+            Path          = 'C:\DFSRoots\{0}' -f $DFSRoot;
+            Share         = $DFSRoot;
+            FullControl   = 'BUILTIN\Administrators';
             ChangeControl = 'Everyone';
-            Description = 'Distributed File System Root Share';
-            DfsRoot = $true;
+            Description   = 'Distributed File System Root Share';
+            DfsRoot       = $true;
         }
-        @{  Path = 'C:\SharedData'; }
         @{
-            Path = 'C:\SharedData\App-V Content';
-            Share = 'Content';
+            Path = 'C:\SharedData';
+        }
+        @{
+            Path        = 'C:\SharedData\App-V Content';
+            Share       = 'Content';
             Description = 'App-V packages';
-            DfsPath = 'Content';
+            DfsPath     = 'Content';
         }
-        @{  Path = 'C:\SharedData\Company Share';
-            Share = 'Company';
+        @{
+            Path        = 'C:\SharedData\Company Share';
+            Share       = 'Company';
             FullControl = 'Everyone';
-            ModifyNtfs = 'Users';
+            ModifyNtfs  = 'Users';
             Description = 'Company-wide shared information';
-            DfsPath = 'Company';
+            DfsPath     = 'Company';
         }
-        @{ Path = 'C:\SharedData\Company Share\Documentation'; }
-        @{ Path = 'C:\SharedData\Company Share\Media'; }
-        @{ Path = 'C:\SharedData\Company Share\Financial Confidential'; }
-        @{ Path = 'C:\SharedData\Company Share\Portraits'; }
-        @{ Path = 'C:\SharedData\Departmental Shares'; }
         @{
-            Path = 'C:\SharedData\Profiles';
-            Share = 'Profile$';
-            FullControl = 'Everyone';
+            Path = 'C:\SharedData\Company Share\Documentation';
+        }
+        @{
+            Path = 'C:\SharedData\Company Share\Media';
+        }
+        @{
+            Path = 'C:\SharedData\Company Share\Financial Confidential';
+        }
+        @{
+            Path = 'C:\SharedData\Company Share\Portraits';
+        }
+        @{
+            Path = 'C:\SharedData\Departmental Shares';
+        }
+        @{
+            Path            = 'C:\SharedData\Profiles';
+            Share           = 'Profile$';
+            FullControl     = 'Everyone';
             FullControlNtfs = 'Users';
-            Description = 'User roaming profiles';
-            DfsPath = 'Profiles';
+            Description     = 'User roaming profiles';
+            DfsPath         = 'Profiles';
         }
         @{
-            Path = 'C:\SharedData\Profiles\TS Profiles';
-            Share = 'TSProfile$';
-            FullControl = 'Everyone';
+            Path            = 'C:\SharedData\Profiles\TS Profiles';
+            Share           = 'TSProfile$';
+            FullControl     = 'Everyone';
             FullControlNtfs = 'Users';
-            Description = 'User Terminal Services roaming profiles';
+            Description     = 'User Terminal Services roaming profiles';
         }
         @{
-            Path = 'C:\SharedData\User Home Directories';
-            Share = 'Home$';
+            Path        = 'C:\SharedData\User Home Directories';
+            Share       = 'Home$';
             FullControl = 'Everyone';
             Description = 'User home folders';
-            DfsPath = 'Home Folders';
+            DfsPath     = 'Home Folders';
         }
         @{
-            Path = 'C:\SharedData\PST';
-            Share = 'PST';
+            Path        = 'C:\SharedData\PST';
+            Share       = 'PST';
             FullControl = 'Everyone';
             Description = 'Exported Mailboxes';
-            DfsPath = 'Mail Archives';
+            DfsPath     = 'Mail Archives';
         }
         @{
-            Path = 'C:\SharedData\Service Store File Repository';
-            Share = 'ROSSRepo';
+            Path        = 'C:\SharedData\Service Store File Repository';
+            Share       = 'ROSSRepo';
             FullControl = 'Everyone';
             Description = 'RES ONE Service Store file repository';
-            DfsPath = 'ROSS Repository';
+            DfsPath     = 'ROSS Repository';
         }
     ) #end folders
 
@@ -282,11 +301,12 @@ configuration vShowcaseLab {
 
     #region DNS
     vTrainingLabDns 'ReverseLookupAndCNames' {
-        IPAddress = $IPAddress;
-        DomainName = $DomainName;
-        ITStoreHost = $ITStoreHost;
-        StorefrontHost = $StorefrontHost;
-        SmtpHost = $SmtpHost;
+        IPAddress           = $IPAddress;
+        DomainName          = $DomainName;
+        ServiceStoreHost    = $ServiceStoreHost;
+        CatalogServicesHost = $CatalogServicesHost
+        StorefrontHost      = $StorefrontHost;
+        SmtpHost            = $SmtpHost;
     }
     #endregion DNS
 
@@ -296,55 +316,55 @@ configuration vShowcaseLab {
     }
 
     vTrainingLabOUs 'OUs' {
-        OUs = $activeDirectory.OUs;
+        OUs        = $activeDirectory.OUs;
         DomainName = $DomainName;
     }
 
     vTrainingLabServiceAccounts 'ServiceAccounts' {
         ServiceAccounts = $activeDirectory.ServiceAccounts;
-        Password = $Password;
-        DomainName = $DomainName;
+        Password        = $Password;
+        DomainName      = $DomainName;
     }
 
     vTrainingLabUsers 'Users' {
-        Users = $activeDirectory.Users;
-        Password = $Password;
-        DomainName = $DomainName;
-        FileServer = $FileServer;
-        HomeDrive = $HomeDrive;
-        ProfileShare = $ProfileShare;
+        Users                = $activeDirectory.Users;
+        Password             = $Password;
+        DomainName           = $DomainName;
+        FileServer           = $FileServer;
+        HomeDrive            = $HomeDrive;
+        ProfileShare         = $ProfileShare;
         MandatoryProfileName = $MandatoryProfileName;
     }
 
     vTrainingLabGroups 'Groups' {
-        Groups = $activeDirectory.Groups;
-        Users = $activeDirectory.Users;
+        Groups     = $activeDirectory.Groups;
+        Users      = $activeDirectory.Users;
         DomainName = $DomainName;
     }
     #endregion Active Directory
 
     #region Group Policy
     vTrainingLabGPOs 'GPOs' {
-        GPOBackupPath = $GPOBackupPath;
+        GPOBackupPath      = $GPOBackupPath;
         GroupPolicyObjects = $activeDirectory.GPOs;
-        DependsOn = '[vTrainingLabOUs]OUs';
+        DependsOn          = '[vTrainingLabOUs]OUs';
     }
     #endregion Group Policy
 
     $departments = $activeDirectory.Users | % { $_.Department } | Select -Unique;
 
     vTrainingLabFolders 'Folders' {
-        Folders = $folders;
-        Users = $activeDirectory.Users;
+        Folders     = $folders;
+        Users       = $activeDirectory.Users;
         Departments = $departments;
     }
 
     vTrainingLabDfs 'Dfs' {
-        Folders = $folders;
-        Credential = $Credential;
-        DFSRoot = $DFSRoot;
-        DomainName = $DomainName;
-        FileServer = $FileServer;
+        Folders     = $folders;
+        Credential  = $Credential;
+        DFSRoot     = $DFSRoot;
+        DomainName  = $DomainName;
+        FileServer  = $FileServer;
         Departments = $departments;
     }
 
@@ -355,26 +375,26 @@ configuration vShowcaseLab {
     if ($PSBoundParameters.ContainsKey('ThumbnailPhotoPath')) {
 
         vTrainingLabUserThumbnails 'UserThumbnailPhotos' {
-            Users = $activeDirectory.Users;
+            Users              = $activeDirectory.Users;
             ThumbnailPhotoPath = $ThumbnailPhotoPath;
-            DomainName = $DomainName;
-            Extension = 'jpg';
+            DomainName         = $DomainName;
+            Extension          = 'jpg';
         }
 
         vTrainingLabUserThumbnails 'ServiceAccountPhotos' {
-            Users = $activeDirectory.ServiceAccounts;
+            Users              = $activeDirectory.ServiceAccounts;
             ThumbnailPhotoPath = $ThumbnailPhotoPath;
-            DomainName = $DomainName;
-            Filename = 'ServiceAccount';
-            Extension = 'jpg';
+            DomainName         = $DomainName;
+            Filename           = 'ServiceAccount';
+            Extension          = 'jpg';
         }
 
         vTrainingLabUserThumbnails 'AdministratorPhoto' {
-            Users = @{ SamAccountName = 'Administrator' }
+            Users              = @{ SamAccountName = 'Administrator' }
             ThumbnailPhotoPath = $ThumbnailPhotoPath;
-            DomainName = $DomainName;
-            Filename = 'AdminAccount';
-            Extension = 'jpg';
+            DomainName         = $DomainName;
+            Filename           = 'AdminAccount';
+            Extension          = 'jpg';
         }
     }
 
