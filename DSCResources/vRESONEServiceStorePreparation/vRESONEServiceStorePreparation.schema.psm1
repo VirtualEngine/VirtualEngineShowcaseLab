@@ -47,7 +47,7 @@ configuration vRESONEServiceStorePreparation {
             Connect-ROSSSession -DatabaseServer $env:COMPUTERNAME -DatabaseName $using:DatabaseName;
 
             $organizationContexts = & $ross {
-                Get-ROSSOrganization |
+                Get-ROSSOrganizationDb |
                     Remove-ROSSOrganization -Force -PassThru -WarningAction SilentlyContinue |
                         Select -Expand Name;
             }
