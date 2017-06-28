@@ -124,6 +124,14 @@ configuration vShowcaseLab {
             Path = 'C:\SharedData\Departmental Shares';
         }
         @{
+            Path = 'C:\SharedData\Profiles\Containers';
+            Share = 'ProfileContainer$';
+            FullControl = 'Everyone';
+            FullControlNtfs = 'Users';
+            Description = 'FSLogix Containers';
+            DfsPath = 'ProfileContainers';
+        }
+        @{
             Path            = 'C:\SharedData\Profiles';
             Share           = 'Profile$';
             FullControl     = 'Everyone';
@@ -291,6 +299,9 @@ configuration vShowcaseLab {
             @{ Name = 'RES WM Service Accounts'; Path = 'OU=Groups,OU=Showcase'; Description = 'RES ONE Workspace service accounts';
                     Members = 'Domain Admins','RESWM'; Scope = 'DomainLocal'; }
 
+            @{ Name = 'FSLogix ODFC'; Path = 'OU=Groups,OU=Showcase'; Description = 'FSLogix O365/OneDrive Container user accounts'; Scope = 'DomainLocal'; }
+            @{ Name = 'FSLogix Profile Containers'; Path = 'OU=Groups,OU=Showcase'; Description = 'FSLogix Profile Container user accounts'; Scope = 'DomainLocal'; }
+
             ## Add RES AM Service Account to 'Domain Admins' group
             @{ Name = 'Domain Admins'; Path = 'CN=Users'; Members = 'RESAM'; }
             ## Add CONTROLLER to 'Terminal Server License Servers' group
@@ -304,7 +315,7 @@ configuration vShowcaseLab {
         IPAddress           = $IPAddress;
         DomainName          = $DomainName;
         ServiceStoreHost    = $ServiceStoreHost;
-        CatalogServicesHost = $CatalogServicesHost
+        CatalogServicesHost = $CatalogServicesHost;
         StorefrontHost      = $StorefrontHost;
         SmtpHost            = $SmtpHost;
     }
