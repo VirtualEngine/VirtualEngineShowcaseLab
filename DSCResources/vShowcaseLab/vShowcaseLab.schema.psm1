@@ -147,6 +147,13 @@ configuration vShowcaseLab {
             Description     = 'User Terminal Services roaming profiles';
         }
         @{
+            Path = 'C:\SharedData\Software';
+            Share = 'Software';
+            FullControl = 'Everyone';
+            Description = 'Software repository';
+            DfsPath = 'Software';
+        }
+        @{
             Path        = 'C:\SharedData\User Home Directories';
             Share       = 'Home$';
             FullControl = 'Everyone';
